@@ -1,4 +1,5 @@
 import '@nomiclabs/hardhat-waffle';
+import '@nomiclabs/hardhat-etherscan';
 import '@typechain/hardhat';
 import 'solidity-coverage';
 import 'hardhat-contract-sizer';
@@ -114,6 +115,10 @@ export default {
         ethereum: {
             url: 'https://main-light.eth.linkpool.io',
             accounts: [config.ethereumDeployerPrivateKey],
+        },
+        polygon: {
+            url: 'https://polygon-rpc.com',
+            accounts: [config.polygonDeployerPrivateKey],
         },
     },
     etherscan: {

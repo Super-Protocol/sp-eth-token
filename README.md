@@ -19,4 +19,3 @@ $ npx hardhat deploy --receivers receivers.json --network ethereum
 ```sh
 $ npx hardhat verify --contract contracts/SuperproToken.sol --constructor-args receivers.json --network ethereum <contract address>
 ```
-f
