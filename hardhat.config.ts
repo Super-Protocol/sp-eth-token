@@ -37,7 +37,7 @@ task('deploy', 'Deploy token to Ethereum network (root)')
         console.log('FEE PAYER:', feePayer.address, 'BALANCE', utils.formatEther(balance));
         console.log('');
 
-        const token = await deployContract(hre, 'SuperproToken', feePayer, receivers);
+        const token = await deployContract(hre, 'SuperProtocol', feePayer, receivers);
         const supplied = utils.formatEther(await token.totalSupply());
 
         const showBalance = async (name: string, address: string) => {

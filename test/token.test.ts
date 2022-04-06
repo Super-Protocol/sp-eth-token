@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import crypto from 'crypto';
-import { SuperproToken } from '../typechain';
+import { SuperProtocol } from '../typechain';
 import { TokenReceivers } from '../scripts/model';
 
 describe('SuperProtocol TEE token', function () {
@@ -30,9 +30,9 @@ describe('SuperProtocol TEE token', function () {
         };
     }
 
-    async function deployWithReceivers(receviers: TokenReceivers): Promise<SuperproToken> {
-        const factory = await ethers.getContractFactory('SuperproToken');
-        const token = (await factory.deploy(receviers)) as SuperproToken;
+    async function deployWithReceivers(receviers: TokenReceivers): Promise<SuperProtocol> {
+        const factory = await ethers.getContractFactory('SuperProtocol');
+        const token = (await factory.deploy(receviers)) as SuperProtocol;
         await token.deployed();
         return token;
     }

@@ -27,7 +27,7 @@ struct TokenReceivers {
     Multisigs multisigs;
 }
 
-contract SuperproToken is ERC20 {
+contract SuperProtocol is ERC20 {
     constructor(TokenReceivers memory receivers) ERC20(DESCRIPTION, TICKER) {
         _mint(receivers.contracts.promoStaking, 10_000_000 ether);
         _mint(receivers.contracts.liquidityRewards, 90_000_000 ether);

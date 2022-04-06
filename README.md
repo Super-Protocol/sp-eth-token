@@ -14,8 +14,10 @@ $ cp receivers.example.json receivers.json
 $ npx hardhat deploy --receivers receivers.json --network ethereum
 ```
 
-## Verify
+## Contract Verification
 
 ```sh
-$ npx hardhat verify --contract contracts/SuperproToken.sol --constructor-args receivers.json --network ethereum <contract address>
+$ cp constructor-args.json.template args.json
+# Update args.json with actual addresses
+$ npx hardhat verify --contract contracts/SuperProtocol.sol:SuperProtocol --network ethereum --constructor-args args.json <contract address>
 ```
