@@ -27,6 +27,11 @@ struct TokenReceivers {
     Multisigs multisigs;
 }
 
+struct AirdropInfo {
+    address receiver;
+    uint256 amount;
+}
+
 contract SuperProtocol is ERC20 {
     constructor(TokenReceivers memory receivers) ERC20(DESCRIPTION, TICKER) {
         _mint(receivers.contracts.promoStaking, 10_000_000 ether);
@@ -42,5 +47,13 @@ contract SuperProtocol is ERC20 {
         _mint(receivers.multisigs.dao, 10_000_000 ether);
 
         require(totalSupply() == 1_000_000_000 ether, "Something wrong in token distribution");
+    }
+
+    function airdrop(AirdropInfo[] memory airdropInfos) public {
+        for (uint256 idx = 0; idx < airdropInfos.length; ++idx) {
+            address receiver = airdropInfos[idx].receiver;
+            uint256 amount = airdropInfos[idx].amount;
+            transfer(receiver, amount);
+        }
     }
 }

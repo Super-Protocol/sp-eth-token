@@ -39,8 +39,10 @@ task('deploy', 'Deploy token to Ethereum network (root)')
 
         const token = await deployContract(hre, 'SuperProtocol', feePayer, receivers);
         const supplied = utils.formatEther(await token.totalSupply());
+        const tokenAddress = token.address;
 
         const showBalance = async (name: string, address: string) => {
+            const token = await hre.ethers.getContractAt('SuperProtocol', tokenAddress);
             const balance = await token.balanceOf(address);
             const uiBalance = (balance / Math.pow(10, 18) / Math.pow(10, 6)).toString() + 'm';
             console.log(name.padStart(18, ' '), ':', address, '=', uiBalance.padStart(4, ' '));

@@ -18,3 +18,8 @@ export type TokenReceivers = {
     contracts: Contracts;
     multisigs: Multisigs;
 };
+
+export type AirdropInfo = {
+    receiver: string;
+    amount: number;
+};
