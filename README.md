@@ -3,7 +3,7 @@
 ### Test
 
 ```sh
-$ npx hardhat test
+$ npx hardhat test --show-stack-traces
 ```
 
 ### Deploy

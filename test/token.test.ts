@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import crypto from 'crypto';
 import { SuperProtocol } from '../typechain';
-import { TokenReceivers } from '../scripts/model';
+import { AirdropInfo, TokenReceivers } from '../scripts/model';
 
 describe('SuperProtocol TEE token', function () {
     async function genRandomAddress(): Promise<string> {
@@ -57,5 +57,29 @@ describe('SuperProtocol TEE token', function () {
         expect(await token.balanceOf(receivers.multisigs.liquidityRewards)).eq(parseEther(10_000_000));
         expect(await token.balanceOf(receivers.multisigs.publicSale)).eq(parseEther(75_000_000));
         expect(await token.balanceOf(receivers.multisigs.dao)).eq(parseEther(10_000_000));
+    });
+
+    it('Should airdrop tokens to array', async function () {
+        const signers = await ethers.getSigners();
+        const liquidityRewardsMultisig = signers[0];
+
+        const receivers = await generateReceivers();
+        receivers.multisigs.liquidityRewards = liquidityRewardsMultisig.address;
+        const token = await deployWithReceivers(receivers);
+
+        const alice = await genRandomAddress();
+        const laura = await genRandomAddress();
+        const jamie = await genRandomAddress();
+
+        const airdropInfos: AirdropInfo[] = [
+            { receiver: alice, amount: 1111 },
+            { receiver: laura, amount: 2222 },
+            { receiver: jamie, amount: 3333 },
+        ];
+        await token.connect(liquidityRewardsMultisig).airdrop(airdropInfos);
+
+        expect(await token.balanceOf(alice)).eq(1111);
+        expect(await token.balanceOf(laura)).eq(2222);
+        expect(await token.balanceOf(jamie)).eq(3333);
     });
 });
