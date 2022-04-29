@@ -118,6 +118,11 @@ export default {
             url: 'https://main-light.eth.linkpool.io',
             accounts: [config.ethereumDeployerPrivateKey],
         },
+        mumbai: {
+            chainId: 80001,
+            url: config.mumbaiUrl,
+            accounts: [config.mumbaiDeployerPrivateKey],
+        },
         polygon: {
             url: 'https://polygon-rpc.com',
             accounts: [config.polygonDeployerPrivateKey],
