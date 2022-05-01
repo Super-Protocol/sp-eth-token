@@ -11,6 +11,7 @@ $ npx hardhat test --show-stack-traces
 ```sh
 $ cp receivers.example.json receivers.json
 # Update receivers.json with actual addresses
+$ npx hardhat compile
 $ npx hardhat deploy --receivers receivers.json --network ethereum
 ```
 
