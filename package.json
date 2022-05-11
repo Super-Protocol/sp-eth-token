@@ -1,5 +1,5 @@
 {
-  "name": "@superprotocol/sp-eth-promo-staking",
+  "name": "@superprotocol/sp-eth-token",
   "version": "1.0.0",
   "scripts": {
     "eslint": "eslint --ignore-path .gitignore --ext .js,.ts .",
