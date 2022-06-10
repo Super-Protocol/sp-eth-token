@@ -24,11 +24,11 @@ async function deployContract(hre: HardhatRuntimeEnvironment, name: string, sign
     return contract;
 }
 
-task('deploy', 'Deploy token to Ethereum network (root)')
-    .addParam('receivers', 'Receivers json file (see receivers.example.json)')
+task('deploy', 'Deploy token')
+    .addParam('receivers', 'Receivers json file (see constructor-args.json)')
     .setAction(async (taskArgs, hre) => {
         const receiversFilename = taskArgs.receivers;
-        const receivers = JSON.parse(fs.readFileSync(receiversFilename).toString()) as TokenReceivers;
+        const receivers = JSON.parse(fs.readFileSync(receiversFilename).toString()) as TokenReceivers[];
 
         const signers = await hre.ethers.getSigners();
         const feePayer = signers[0];
@@ -41,32 +41,21 @@ task('deploy', 'Deploy token to Ethereum network (root)')
         const supplied = utils.formatEther(await token.totalSupply());
         const tokenAddress = token.address;
 
-        const showBalance = async (name: string, address: string) => {
+        const showBalance = async (address: string) => {
             const token = await hre.ethers.getContractAt('SuperProtocol', tokenAddress);
             const balance = await token.balanceOf(address);
             const uiBalance = (balance / Math.pow(10, 18) / Math.pow(10, 6)).toString() + 'm';
-            console.log(name.padStart(18, ' '), ':', address, '=', uiBalance.padStart(4, ' '));
+            console.log(address, '=', uiBalance.padStart(4, ' '));
         };
 
         console.log('');
         console.log('TOTAL SUPPLY:', supplied);
 
         console.log('');
-        console.log('== CONTRACTS');
-        await showBalance('PROMO STAKING:', receivers.contracts.promoStaking);
-        await showBalance('LIQUIDITY REWARDS', receivers.contracts.liquidityRewards);
-        await showBalance('INSIDERS VESTING', receivers.contracts.insidersVesting);
-        await showBalance('DAO VESTING', receivers.contracts.daoVesting);
-        await showBalance('STAKING REWARDS', receivers.contracts.stakingRewards);
-        await showBalance('PROVIDERS REWARDS', receivers.contracts.providersRewards);
-        await showBalance('DEMAND STIMULUS', receivers.contracts.demandStimulus);
-
-        console.log('');
-        console.log('== MULTISIG');
-        await showBalance('LIQUIDITY REWARDS', receivers.multisigs.liquidityRewards);
-        await showBalance('PUBLICSALE', receivers.multisigs.publicSale);
-        await showBalance('DAO', receivers.multisigs.dao);
-
+        console.log('== CONTRACTS && MULTISIG');
+        for (let receiversIndex = 0; receiversIndex < receivers.length; receiversIndex++) {
+            await showBalance(receivers[receiversIndex].receiver);
+        }
         console.log('');
     });
 

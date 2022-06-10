@@ -10,9 +10,9 @@ $ npx hardhat test --show-stack-traces
 
 ```sh
 $ cp receivers.example.json receivers.json
-# Update receivers.json with actual addresses
+# Update args.json with actual addresses and amounts
 $ npx hardhat compile
-$ npx hardhat deploy --receivers receivers.json --network ethereum
+$ npx hardhat deploy --receivers args.json --network <network_name>
 ```
 
 ## Contract Verification
@@ -20,5 +20,5 @@ $ npx hardhat deploy --receivers receivers.json --network ethereum
 ```sh
 $ cp constructor-args.json.template args.json
 # Update args.json with actual addresses
-$ npx hardhat verify --contract contracts/SuperProtocol.sol:SuperProtocol --network ethereum --constructor-args args.json <contract address>
+$ npx hardhat verify --contract contracts/SuperProtocol.sol:SuperProtocol --network <network_name> --constructor-args args.json <contract address>
 ```
