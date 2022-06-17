@@ -1,36 +1,80 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import crypto from 'crypto';
+import { BigNumber } from '@ethersproject/bignumber';
 import { SuperProtocol } from '../typechain';
-import { AirdropInfo, TokenReceivers } from '../scripts/model';
+import { TokenReceivers, Recepients } from '../scripts/model';
 
 describe('SuperProtocol TEE token', function () {
+    let recipientsTypes: Recepients;
+
+    beforeEach(async function () {
+        recipientsTypes = {
+            promoStaking: await genRandomAddress(),
+            liquidityRewards: await genRandomAddress(),
+            insidersVesting: await genRandomAddress(),
+            daoVesting: await genRandomAddress(),
+            stakingRewards: await genRandomAddress(),
+            providersRewards: await genRandomAddress(),
+            demandStimulus: await genRandomAddress(),
+            liquidityRewardsMultisig: await genRandomAddress(),
+            publicSaleMultisig: await genRandomAddress(),
+            daoMultisig: await genRandomAddress(),
+        };
+    });
+
     async function genRandomAddress(): Promise<string> {
         const id = crypto.randomBytes(32).toString('hex');
         const w = new ethers.Wallet('0x' + id);
         return w.getAddress();
     }
 
-    async function generateReceivers(): Promise<TokenReceivers> {
-        return {
-            contracts: {
-                promoStaking: await genRandomAddress(),
-                liquidityRewards: await genRandomAddress(),
-                insidersVesting: await genRandomAddress(),
-                daoVesting: await genRandomAddress(),
-                stakingRewards: await genRandomAddress(),
-                providersRewards: await genRandomAddress(),
-                demandStimulus: await genRandomAddress(),
+    async function generateReceivers(): Promise<TokenReceivers[]> {
+        return [
+            {
+                receiver: recipientsTypes.promoStaking,
+                amount: parseEther(10_000_000),
             },
-            multisigs: {
-                liquidityRewards: await genRandomAddress(),
-                publicSale: await genRandomAddress(),
-                dao: await genRandomAddress(),
+            {
+                receiver: recipientsTypes.liquidityRewards,
+                amount: parseEther(90_000_000),
             },
-        };
+            {
+                receiver: recipientsTypes.insidersVesting,
+                amount: parseEther(400_000_000),
+            },
+            {
+                receiver: recipientsTypes.daoVesting,
+                amount: parseEther(190_000_000),
+            },
+            {
+                receiver: recipientsTypes.stakingRewards,
+                amount: parseEther(65_000_000),
+            },
+            {
+                receiver: recipientsTypes.providersRewards,
+                amount: parseEther(100_000_000),
+            },
+            {
+                receiver: recipientsTypes.demandStimulus,
+                amount: parseEther(50_000_000),
+            },
+            {
+                receiver: recipientsTypes.liquidityRewardsMultisig,
+                amount: parseEther(10_000_000),
+            },
+            {
+                receiver: recipientsTypes.publicSaleMultisig,
+                amount: parseEther(75_000_000),
+            },
+            {
+                receiver: recipientsTypes.daoMultisig,
+                amount: parseEther(10_000_000),
+            }
+        ];
     }
 
-    async function deployWithReceivers(receviers: TokenReceivers): Promise<SuperProtocol> {
+    async function deployWithReceivers(receviers: TokenReceivers[]): Promise<SuperProtocol> {
         const factory = await ethers.getContractFactory('SuperProtocol');
         const token = (await factory.deploy(receviers)) as SuperProtocol;
         await token.deployed();
@@ -46,17 +90,17 @@ describe('SuperProtocol TEE token', function () {
         const token = await deployWithReceivers(receivers);
         expect(await token.totalSupply()).eq(parseEther(1_000_000_000));
 
-        expect(await token.balanceOf(receivers.contracts.promoStaking)).eq(parseEther(10_000_000));
-        expect(await token.balanceOf(receivers.contracts.liquidityRewards)).eq(parseEther(90_000_000));
-        expect(await token.balanceOf(receivers.contracts.insidersVesting)).eq(parseEther(400_000_000));
-        expect(await token.balanceOf(receivers.contracts.daoVesting)).eq(parseEther(190_000_000));
-        expect(await token.balanceOf(receivers.contracts.stakingRewards)).eq(parseEther(65_000_000));
-        expect(await token.balanceOf(receivers.contracts.providersRewards)).eq(parseEther(100_000_000));
-        expect(await token.balanceOf(receivers.contracts.demandStimulus)).eq(parseEther(50_000_000));
+        expect(await token.balanceOf(recipientsTypes.promoStaking)).eq(parseEther(10_000_000));
+        expect(await token.balanceOf(recipientsTypes.liquidityRewards)).eq(parseEther(90_000_000));
+        expect(await token.balanceOf(recipientsTypes.insidersVesting)).eq(parseEther(400_000_000));
+        expect(await token.balanceOf(recipientsTypes.daoVesting)).eq(parseEther(190_000_000));
+        expect(await token.balanceOf(recipientsTypes.stakingRewards)).eq(parseEther(65_000_000));
+        expect(await token.balanceOf(recipientsTypes.providersRewards)).eq(parseEther(100_000_000));
+        expect(await token.balanceOf(recipientsTypes.demandStimulus)).eq(parseEther(50_000_000));
 
-        expect(await token.balanceOf(receivers.multisigs.liquidityRewards)).eq(parseEther(10_000_000));
-        expect(await token.balanceOf(receivers.multisigs.publicSale)).eq(parseEther(75_000_000));
-        expect(await token.balanceOf(receivers.multisigs.dao)).eq(parseEther(10_000_000));
+        expect(await token.balanceOf(recipientsTypes.liquidityRewardsMultisig)).eq(parseEther(10_000_000));
+        expect(await token.balanceOf(recipientsTypes.publicSaleMultisig)).eq(parseEther(75_000_000));
+        expect(await token.balanceOf(recipientsTypes.daoMultisig)).eq(parseEther(10_000_000));
     });
 
     it('Should airdrop tokens to array', async function () {
@@ -64,17 +108,17 @@ describe('SuperProtocol TEE token', function () {
         const liquidityRewardsMultisig = signers[0];
 
         const receivers = await generateReceivers();
-        receivers.multisigs.liquidityRewards = liquidityRewardsMultisig.address;
+        receivers[7].receiver = liquidityRewardsMultisig.address;
         const token = await deployWithReceivers(receivers);
 
         const alice = await genRandomAddress();
         const laura = await genRandomAddress();
         const jamie = await genRandomAddress();
 
-        const airdropInfos: AirdropInfo[] = [
-            { receiver: alice, amount: 1111 },
-            { receiver: laura, amount: 2222 },
-            { receiver: jamie, amount: 3333 },
+        const airdropInfos: TokenReceivers[] = [
+            { receiver: alice, amount: BigNumber.from(1111) },
+            { receiver: laura, amount: BigNumber.from(2222) },
+            { receiver: jamie, amount: BigNumber.from(3333) },
         ];
         await token.connect(liquidityRewardsMultisig).airdrop(airdropInfos);
 

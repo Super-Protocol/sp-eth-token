@@ -1,4 +1,6 @@
-export type Contracts = {
+import { BigNumber } from '@ethersproject/bignumber';
+
+export type Recepients = {
     promoStaking: string;
     liquidityRewards: string;
     insidersVesting: string;
@@ -6,20 +8,12 @@ export type Contracts = {
     stakingRewards: string;
     providersRewards: string;
     demandStimulus: string;
-};
-
-export type Multisigs = {
-    liquidityRewards: string;
-    publicSale: string;
-    dao: string;
+    liquidityRewardsMultisig: string;
+    publicSaleMultisig: string;
+    daoMultisig: string;
 };
 
 export type TokenReceivers = {
-    contracts: Contracts;
-    multisigs: Multisigs;
-};
-
-export type AirdropInfo = {
     receiver: string;
-    amount: number;
+    amount: BigNumber;
 };
