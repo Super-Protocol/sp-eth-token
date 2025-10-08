@@ -3,11 +3,7 @@ import path from 'path';
 dotenv.config({ path: path.join(__dirname, '/.env') });
 
 export const config = {
-    mumbaiUrl: process.env.MUMBAI_URL,
-    mumbaiDeployerPrivateKey: process.env.MUMBAI_DEPLOYER_PRIVATE_KEY,
-    localhostDeployerPrivateKey: process.env.LOCALHOST_DEPLOYER_PRIVATE_KEY,
-    ethereumDeployerPrivateKey: process.env.ETHEREUM_DEPLOYER_PRIVATE_KEY,
-    polygonDeployerPrivateKey: process.env.POLYGON_DEPLOYER_PRIVATE_KEY,
-    polygonApiKey: process.env.POLYGON_API_KEY,
-    ethereumApiKey: process.env.ETHEREUM_API_KEY,
+    rpcUrl: process.env.RPC_URL,
+    deployerPrivateKey: process.env.DEPLOYER_PRIVATE_KEY,
+    mochaBail: process.argv.filter(arg => arg == '--bail').length > 0 || process.env.MOCHA_BAIL === 'true',
 };

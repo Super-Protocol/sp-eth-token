@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { BigNumber } from '@ethersproject/bignumber';
 import { SuperProtocol } from '../typechain';
 import { TokenReceivers, Recepients } from '../scripts/model';
+import { BaseContract } from 'ethers';
 
 describe('SuperProtocol TEE token', function () {
     let recipientsTypes: Recepients;
@@ -70,19 +71,19 @@ describe('SuperProtocol TEE token', function () {
             {
                 receiver: recipientsTypes.daoMultisig,
                 amount: parseEther(10_000_000),
-            }
+            },
         ];
     }
 
     async function deployWithReceivers(receviers: TokenReceivers[]): Promise<SuperProtocol> {
         const factory = await ethers.getContractFactory('SuperProtocol');
-        const token = (await factory.deploy(receviers)) as SuperProtocol;
-        await token.deployed();
+        const token = (await factory.deploy(receviers)) as BaseContract as SuperProtocol;
+        await token.waitForDeployment();
         return token;
     }
 
     function parseEther(amount: number) {
-        return ethers.utils.parseEther(amount.toString());
+        return ethers.parseEther(amount.toString());
     }
 
     it('Should distribute all tokens', async function () {
@@ -116,9 +117,9 @@ describe('SuperProtocol TEE token', function () {
         const jamie = await genRandomAddress();
 
         const airdropInfos: TokenReceivers[] = [
-            { receiver: alice, amount: BigNumber.from(1111) },
-            { receiver: laura, amount: BigNumber.from(2222) },
-            { receiver: jamie, amount: BigNumber.from(3333) },
+            { receiver: alice, amount: 1111n },
+            { receiver: laura, amount: 2222n },
+            { receiver: jamie, amount: 3333n },
         ];
         await token.connect(liquidityRewardsMultisig).airdrop(airdropInfos);
 
