@@ -3,6 +3,7 @@ import '@nomicfoundation/hardhat-chai-matchers';
 import 'solidity-docgen';
 import 'solidity-coverage';
 import 'hardhat-contract-sizer';
+import '@nomicfoundation/hardhat-verify';
 
 import { task } from 'hardhat/config';
 import { config } from './config';
@@ -28,7 +29,7 @@ task('deploy', 'Deploy token')
     .addParam('receivers', 'Receivers json file (see args.json)')
     .setAction(async (taskArgs, hre) => {
         const receiversFilename = taskArgs.receivers;
-        const receivers = JSON.parse(fs.readFileSync(receiversFilename).toString()) as TokenReceivers[];
+        const receivers = JSON.parse(fs.readFileSync(receiversFilename).toString())[0] as TokenReceivers[];
 
         const signers = await hre.ethers.getSigners();
         const feePayer = signers[0];
@@ -68,6 +69,7 @@ export default {
             {
                 version: '0.8.30',
                 settings: {
+                    viaIR: true,
                     optimizer: {
                         enabled: true,
                         runs: 1000,
@@ -103,19 +105,30 @@ export default {
                 count: 10,
             },
         },
-        local: {
-            url: 'http://127.0.0.1:8545',
-            accounts: ['0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'],
-        },
-        opbnbTestnet: {
-            chainId: 5611,
+        bscTestnet: {
+            chainId: 97,
             url: config.rpcUrl,
             accounts: [config.deployerPrivateKey],
         },
-        opbnb: {
-            chainId: 204,
+        bsc: {
+            chainId: 56,
             url: config.rpcUrl,
             accounts: [config.deployerPrivateKey],
         },
+    },
+    etherscan: {
+        apiKey: {
+            bsc: process.env.ETHERSCAN_API_KEY,
+        },
+        customChains: [
+            {
+                network: 'bsc',
+                chainId: 56,
+                urls: {
+                    apiURL: 'https://api.etherscan.io/v2/api?chainid=56',
+                    browserURL: 'https://bscscan.com/',
+                },
+            },
+        ],
     },
 };

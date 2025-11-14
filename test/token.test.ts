@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import crypto from 'crypto';
-import { BigNumber } from '@ethersproject/bignumber';
 import { SuperProtocol } from '../typechain';
 import { TokenReceivers, Recepients } from '../scripts/model';
 import { BaseContract } from 'ethers';
