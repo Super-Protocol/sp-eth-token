@@ -1,0 +1,16 @@
+[
+  [
+    {
+      "receiver": "multisig address",
+      "amount": "555000000000000000000000000"
+    },
+    {
+      "receiver": "cliff 12m, unlock 36m",
+      "amount": "385000000000000000000000000"
+    },
+    {
+      "receiver": "cliff 12m, unlock 24m",
+      "amount": "60000000000000000000000000"
+    }
+  ]
+]

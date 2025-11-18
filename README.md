@@ -18,7 +18,7 @@ $ npx hardhat deploy --receivers args.json --network <network_name>
 ## Contract Verification
 
 ```sh
-$ cp constructor-args.json.template args.json
+$ cp args.json.template args.json
 # Update args.json with actual addresses
 $ npx hardhat verify --contract contracts/SuperProtocol.sol:SuperProtocol --network <network_name> --constructor-args args.json <contract address>
 ```

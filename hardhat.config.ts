@@ -1,50 +1,51 @@
-import '@nomiclabs/hardhat-waffle';
-import '@nomiclabs/hardhat-etherscan';
 import '@typechain/hardhat';
+import '@nomicfoundation/hardhat-chai-matchers';
+import 'solidity-docgen';
 import 'solidity-coverage';
 import 'hardhat-contract-sizer';
+import '@nomicfoundation/hardhat-verify';
+
 import { task } from 'hardhat/config';
 import { config } from './config';
-import { Contract, Signer, utils } from 'ethers';
+import { BaseContract, formatEther, parseEther, Signer } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import fs from 'fs';
 import { TokenReceivers } from './scripts/model';
+import { SuperProtocol } from './typechain';
 
-async function deployContract(hre: HardhatRuntimeEnvironment, name: string, signer: Signer, ...args: any[]): Promise<Contract> {
+async function deploy<T>(hre: HardhatRuntimeEnvironment, name: string, signer: Signer, ...args: any[]): Promise<T> {
     console.log(name, 'start deploy...');
     const factory = await hre.ethers.getContractFactory(name, signer);
     const contract = await factory.deploy(...args);
-    await contract.deployed();
+    const deployed = await contract.waitForDeployment();
 
-    // This solves the bug in Mumbai network where the contract address is not the real one
-    const txHash = contract.deployTransaction.hash;
-    console.log('Waiting for transaction to be mined. TxHash:', txHash);
-    const tx = await hre.ethers.provider.waitForTransaction(txHash);
-    console.log(name, 'deployed at', tx.contractAddress);
-    return contract;
+    const tx = deployed.deploymentTransaction();
+    console.log('Deployment transaction Hash:', tx?.hash);
+    console.log(name, 'deployed at', await deployed.getAddress());
+    return deployed as BaseContract as T;
 }
 
 task('deploy', 'Deploy token')
-    .addParam('receivers', 'Receivers json file (see constructor-args.json)')
+    .addParam('receivers', 'Receivers json file (see args.json)')
     .setAction(async (taskArgs, hre) => {
         const receiversFilename = taskArgs.receivers;
-        const receivers = JSON.parse(fs.readFileSync(receiversFilename).toString()) as TokenReceivers[];
+        const receivers = JSON.parse(fs.readFileSync(receiversFilename).toString())[0] as TokenReceivers[];
 
         const signers = await hre.ethers.getSigners();
         const feePayer = signers[0];
         const balance = await hre.ethers.provider.getBalance(feePayer.address);
 
-        console.log('FEE PAYER:', feePayer.address, 'BALANCE', utils.formatEther(balance));
+        console.log('FEE PAYER:', feePayer.address, 'BALANCE', formatEther(balance));
         console.log('');
 
-        const token = await deployContract(hre, 'SuperProtocol', feePayer, receivers);
-        const supplied = utils.formatEther(await token.totalSupply());
-        const tokenAddress = token.address;
+        const token = await deploy<SuperProtocol>(hre, 'SuperProtocol', feePayer, receivers);
+        const supplied = formatEther(await token.totalSupply());
+        const tokenAddress = await token.getAddress();
 
         const showBalance = async (address: string) => {
             const token = await hre.ethers.getContractAt('SuperProtocol', tokenAddress);
             const balance = await token.balanceOf(address);
-            const uiBalance = (balance / Math.pow(10, 18) / Math.pow(10, 6)).toString() + 'm';
+            const uiBalance = (Number(balance) / Math.pow(10, 18) / Math.pow(10, 6)).toString() + 'm';
             console.log(address, '=', uiBalance.padStart(4, ' '));
         };
 
@@ -66,8 +67,9 @@ export default {
     solidity: {
         compilers: [
             {
-                version: '0.8.9',
+                version: '0.8.30',
                 settings: {
+                    viaIR: true,
                     optimizer: {
                         enabled: true,
                         runs: 1000,
@@ -86,6 +88,10 @@ export default {
         timeout: 0,
         bail: true,
     },
+    typechain: {
+        outDir: 'typechain',
+        target: 'ethers-v6',
+    },
     networks: {
         hardhat: {
             chainId: 1337,
@@ -95,32 +101,34 @@ export default {
             gasPrice: 1,
             initialBaseFeePerGas: 1,
             accounts: {
-                accountsBalance: utils.parseEther('100000000').toString(),
+                accountsBalance: parseEther('100000000').toString(),
                 count: 10,
             },
         },
-        local: {
-            url: 'http://localhost:8545',
-            account: config.localhostDeployerPrivateKey,
+        bscTestnet: {
+            chainId: 97,
+            url: config.rpcUrl,
+            accounts: [config.deployerPrivateKey],
         },
-        ethereum: {
-            url: 'https://main-light.eth.linkpool.io',
-            accounts: [config.ethereumDeployerPrivateKey],
-        },
-        mumbai: {
-            chainId: 80001,
-            url: config.mumbaiUrl,
-            accounts: [config.mumbaiDeployerPrivateKey],
-        },
-        polygon: {
-            url: 'https://polygon-rpc.com',
-            accounts: [config.polygonDeployerPrivateKey],
+        bsc: {
+            chainId: 56,
+            url: config.rpcUrl,
+            accounts: [config.deployerPrivateKey],
         },
     },
     etherscan: {
         apiKey: {
-            polygon: config.polygonApiKey,
-            mainnet: config.ethereumApiKey,
+            bsc: process.env.ETHERSCAN_API_KEY,
         },
+        customChains: [
+            {
+                network: 'bsc',
+                chainId: 56,
+                urls: {
+                    apiURL: 'https://api.etherscan.io/v2/api?chainid=56',
+                    browserURL: 'https://bscscan.com/',
+                },
+            },
+        ],
     },
 };

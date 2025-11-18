@@ -1,5 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber';
-
 export type Recepients = {
     promoStaking: string;
     liquidityRewards: string;
@@ -15,5 +13,5 @@ export type Recepients = {
 
 export type TokenReceivers = {
     receiver: string;
-    amount: BigNumber;
+    amount: bigint;
 };
